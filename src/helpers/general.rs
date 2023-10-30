@@ -1,3 +1,5 @@
+use std::fs;
+
 use reqwest::Client;
 use serde::de::DeserializeOwned;
 
@@ -5,6 +7,12 @@ use crate::apis::call_request::call_gpt;
 use crate::models::general::llm::Message;
 
 use super::command_line::PrintCommand;
+
+const CODE_TEMPLATE_PATH: &str =
+    "/Users/OwLu/Desktop/Udemy/rust-gpt/basics/web_template/src/code_template.rs";
+const EXEC_MAIN_PATH: &str = "/Users/OwLu/Desktop/Udemy/rust-gpt/basics/web_template/src/main.rs";
+const API_SCHEMA_PATH: &str =
+    "/Users/OwLu/Desktop/Udemy/rust-gpt/basics/auto_gippity/schemas/api_schema.json";
 
 // Extend ai function to encourage specific output
 pub fn extend_ai_function(ai_func: fn(&str) -> &'static str, func_input: &str) -> Message {
@@ -74,6 +82,25 @@ pub async fn check_status_code(client: &Client, url: &str) -> Result<u16, reqwes
     let response: reqwest::Response = client.get(url).send().await?;
     Ok(response.status().as_u16())
 }
+
+// NOTE: Get Code Template
+pub fn read_code_template_contents() -> String {
+    let path: String = CODE_TEMPLATE_PATH.to_string();
+    fs::read_to_string(path).expect("Failed to read code template")
+}
+// NOTE: Save New Backend Code
+pub fn save_backend_code(contents: &str) {
+    let path: String = EXEC_MAIN_PATH.to_string();
+    fs::write(path, contents).expect("Failed to write main.rs file");
+}
+
+// NOTE: Save JSON API Endpoint schema
+pub fn save_api_endpoints(api_endpoints: &str) {
+    let path: String = API_SCHEMA_PATH.to_string();
+    fs::write(path, api_endpoints).expect("Failed to write API Endpoints to file");
+}
+
+// NOTE:
 
 #[cfg(test)]
 mod tests {
