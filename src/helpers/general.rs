@@ -1,3 +1,6 @@
+use reqwest::Client;
+use serde::de::DeserializeOwned;
+
 use crate::apis::call_request::call_gpt;
 use crate::models::general::llm::Message;
 
@@ -49,6 +52,27 @@ pub async fn ai_task_request(
     };
 
     llm_response
+}
+
+// NOTE: Performs call to LLM GPT Decode
+pub async fn ai_task_request_decoded<T: DeserializeOwned>(
+    msg_context: String,
+    agent_position: &str,
+    agent_operation: &str,
+    function_pass: for<'a> fn(&'a str) -> &'static str,
+) -> T {
+    let llm_response =
+        ai_task_request(msg_context, agent_position, agent_operation, function_pass).await;
+
+    let decoded_response: T = serde_json::from_str(llm_response.as_str())
+        .expect("Failed to decode ai response from serde_json");
+    decoded_response
+}
+
+// TODO: Check whether request url is valid
+pub async fn check_status_code(client: &Client, url: &str) -> Result<u16, reqwest::Error> {
+    let response: reqwest::Response = client.get(url).send().await?;
+    Ok(response.status().as_u16())
 }
 
 #[cfg(test)]
