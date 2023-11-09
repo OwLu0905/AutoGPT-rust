@@ -18,7 +18,8 @@ pub struct AgentSolutionArchitect {
 impl AgentSolutionArchitect {
     pub fn new() -> Self {
         let attributes = BasicAgent {
-            objective: "Gathers information and design solutions for website ".to_string(),
+            objective: "Gathers information and design solutions for website development"
+                .to_string(),
             position: "Solutions Architect".to_string(),
             state: AgentState::Discovery,
             memory: vec![],
@@ -140,5 +141,33 @@ impl SpecialFunctions for AgentSolutionArchitect {
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn tests_solutions_architect() {
+        let mut agent = AgentSolutionArchitect::new();
+
+        let mut factsheet :FactSheet = FactSheet {
+            project_description: "Build a full stack website with user login and logout that shows latest Forex prices".to_string(),
+            project_scope:None,
+            external_urls:None,
+            backend_code:None,
+            api_endpoint_schema:None
+        };
+
+        agent
+            .execute(&mut factsheet)
+            .await
+            .expect("Unable to execute Solutions Architect Agent");
+
+        assert!(factsheet.project_scope != None);
+        assert!(factsheet.external_urls.is_some());
+
+        dbg!(factsheet);
     }
 }
